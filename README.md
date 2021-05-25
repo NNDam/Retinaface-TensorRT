@@ -65,5 +65,5 @@ Resolution | Baseline | TensorRT-FP32 (batchsize=1) | TensorRT-FP16 (batchsize=1
 512x512 | 75.4 | 109.2 | 191.8 | 2.54x 
 512x256 | 80.0 | 127.6 | 212.6 | 2.66x 
 ## Reference
-[1] https://github.com/deepinsight/insightface
+[1] https://github.com/deepinsight/insightface <br>
 [2] https://github.com/SthPhoenix/InsightFace-REST
