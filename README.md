@@ -31,6 +31,7 @@ pip install tensorrt-7.2.2.3-cp36-none-linux_x86_64.whl
 ```
 ## Run build Retinaface-TensorRT with batch-inference
 * Step 1: Convert to ONNX
+Download model weights at: https://github.com/deepinsight/insightface
 ```
     python3 sample_retinaface_to_onnx.py \
                     --model_symbol R50-symbol.json \
@@ -64,3 +65,6 @@ Resolution | Baseline | TensorRT-FP32 (batchsize=1) | TensorRT-FP16 (batchsize=1
 640x640 | 57.1 | 71.1 | 131.1 | 2.30x 
 512x512 | 75.4 | 109.2 | 191.8 | 2.54x 
 512x256 | 80.0 | 127.6 | 212.6 | 2.66x 
+## Reference
+[1] https://github.com/deepinsight/insightface
+[2] https://github.com/SthPhoenix/InsightFace-REST
