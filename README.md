@@ -30,8 +30,7 @@ pip install tensorrt-7.2.2.3-cp36-none-linux_x86_64.whl
     python3 build_detectors.py --im_width 1600 --im_height 898 --fp16
 ```
 ## Run build Retinaface-TensorRT with batch-inference
-* Step 1: Convert to ONNX
-Download model weights at: https://github.com/deepinsight/insightface
+* Step 1: Convert to ONNX: download model weights at: https://github.com/deepinsight/insightface
 ```
     python3 sample_retinaface_to_onnx.py \
                     --model_symbol R50-symbol.json \
