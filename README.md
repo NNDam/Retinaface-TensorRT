@@ -4,6 +4,7 @@
 * TensorRT
 * CUDA
 * PyCUDA
+* Mxnet with TensorRT support
 ## Installation
 * Install PyCUDA
 ```
