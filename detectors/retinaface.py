@@ -192,6 +192,48 @@ def bbox_pred(boxes, box_deltas):
 
     return pred_boxes
 
+def bbox_pred_batch(boxes, box_deltas):
+    """
+    Transform the set of class-agnostic boxes into class-specific boxes
+    by applying the predicted offsets (box_deltas)
+    :param boxes: !important [B N 4]
+    :param box_deltas: [B, N, 4 * num_classes]
+    :return: [B N 4 * num_classes]
+    """
+    batch_size = boxes.shape[0]
+    if boxes.shape[1] == 0:
+        return np.zeros((batch_size, 0, box_deltas.shape[2]))
+
+    boxes = boxes.astype(np.float, copy=False)
+    widths = boxes[:, :, 2] - boxes[:, :, 0] + 1.0
+    heights = boxes[:, :, 3] - boxes[:, :, 1] + 1.0
+    ctr_x = boxes[:, :, 0] + 0.5 * (widths - 1.0)
+    ctr_y = boxes[:, :, 1] + 0.5 * (heights - 1.0)
+
+    dx = box_deltas[:, :, 0:1]
+    dy = box_deltas[:, :, 1:2]
+    dw = box_deltas[:, :, 2:3]
+    dh = box_deltas[:, :, 3:4]
+
+    pred_ctr_x = dx * widths[:, :, np.newaxis] + ctr_x[:, :, np.newaxis]
+    pred_ctr_y = dy * heights[:, :, np.newaxis] + ctr_y[:, :, np.newaxis]
+    pred_w = np.exp(dw) * widths[:, :, np.newaxis]
+    pred_h = np.exp(dh) * heights[:, :, np.newaxis]
+
+    pred_boxes = np.zeros(box_deltas.shape)
+    # x1
+    pred_boxes[:, :, 0:1] = pred_ctr_x - 0.5 * (pred_w - 1.0)
+    # y1
+    pred_boxes[:, :, 1:2] = pred_ctr_y - 0.5 * (pred_h - 1.0)
+    # x2
+    pred_boxes[:, :, 2:3] = pred_ctr_x + 0.5 * (pred_w - 1.0)
+    # y2
+    pred_boxes[:, :, 3:4] = pred_ctr_y + 0.5 * (pred_h - 1.0)
+
+    if box_deltas.shape[2] > 4:
+        pred_boxes[:, :, 4:] = box_deltas[:, :, 4:]
+
+    return pred_boxes
 
 def landmark_pred(boxes, landmark_deltas):
     if boxes.shape[0] == 0:
@@ -207,6 +249,23 @@ def landmark_pred(boxes, landmark_deltas):
         pred[:, i, 1] = landmark_deltas[:, i, 1] * heights + ctr_y
     return pred
 
+def landmark_pred_batch(boxes, landmark_deltas):
+    '''
+        Perform batch-landmark prediction
+    '''
+    batch_size = len(boxes)
+    if boxes.shape[0] == 0:
+        return np.zeros((batch_size, 0, landmark_deltas.shape[2]))
+    boxes = boxes.astype(np.float, copy=False)
+    widths = boxes[:, :, 2] - boxes[:, :, 0] + 1.0
+    heights = boxes[:, :, 3] - boxes[:, :, 1] + 1.0
+    ctr_x = boxes[:, :, 0] + 0.5 * (widths - 1.0)
+    ctr_y = boxes[:, :, 1] + 0.5 * (heights - 1.0)
+    pred = landmark_deltas.copy()
+    for i in range(5):
+        pred[:, :, i, 0] = landmark_deltas[:, :, i, 0] * widths + ctr_x
+        pred[:, :, i, 1] = landmark_deltas[:, :, i, 1] * heights + ctr_y
+    return pred
 
 class RetinaFace:
     def __init__(self, inference_backend: Union[DIO, DIT], rac='net3l', masks: bool =False, **kwargs):
